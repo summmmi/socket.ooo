@@ -10,8 +10,8 @@ console.log('Environment check:')
 console.log('Supabase URL:', supabaseUrl ? 'Set' : 'Missing')
 console.log('Supabase Key:', supabaseKey ? 'Set' : 'Missing')
 
-const supabase = supabaseUrl && supabaseKey 
-  ? createClient(supabaseUrl, supabaseKey)
+const supabase = (supabaseUrl && supabaseKey && supabaseUrl.trim() && supabaseKey.trim())
+  ? createClient(supabaseUrl.trim(), supabaseKey.trim())
   : null
 
 // MQTT 브로커 설정 (HiveMQ Cloud 무료 브로커)
@@ -94,13 +94,21 @@ function App() {
 
       // 2. Supabase에 백업 저장 (선택사항)
       if (supabase) {
-        const { error } = await supabase
-          .from('led_colors')
-          .insert([{ color, timestamp: new Date().toISOString() }])
-        
-        if (error) {
-          console.error('Supabase error:', error)
+        try {
+          const { error } = await supabase
+            .from('led_colors')
+            .insert([{ color, timestamp: new Date().toISOString() }])
+          
+          if (error) {
+            console.error('Supabase error:', error)
+          } else {
+            console.log('Supabase: Color saved successfully')
+          }
+        } catch (supabaseError) {
+          console.error('Supabase connection error:', supabaseError)
         }
+      } else {
+        console.log('Supabase not configured, skipping database save')
       }
     } catch (error) {
       console.error('Error:', error)
