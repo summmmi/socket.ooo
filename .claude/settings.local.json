@@ -4,7 +4,8 @@
       "Bash(mkdir:*)",
       "Bash(mv:*)",
       "Bash(yarn install)",
-      "Bash(yarn dev)"
+      "Bash(yarn dev)",
+      "Bash(yarn build)"
     ],
     "deny": []
   }
