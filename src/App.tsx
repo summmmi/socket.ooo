@@ -5,6 +5,11 @@ import mqtt from 'mqtt'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 
+// 환경변수 디버깅
+console.log('Environment check:')
+console.log('Supabase URL:', supabaseUrl ? 'Set' : 'Missing')
+console.log('Supabase Key:', supabaseKey ? 'Set' : 'Missing')
+
 const supabase = supabaseUrl && supabaseKey 
   ? createClient(supabaseUrl, supabaseKey)
   : null
@@ -12,6 +17,9 @@ const supabase = supabaseUrl && supabaseKey
 // MQTT 브로커 설정 (HiveMQ Cloud 무료 브로커)
 const MQTT_BROKER = 'wss://broker.hivemq.com:8884/mqtt'
 const MQTT_TOPIC = 'arduino/led/color'
+
+// 브라우저 환경 확인
+const isBrowser = typeof window !== 'undefined'
 
 type Color = 'red' | 'green' | 'blue'
 
@@ -23,20 +31,27 @@ function App() {
 
   // MQTT 연결 설정
   useEffect(() => {
+    if (!isBrowser) return
+
+    console.log('Initializing MQTT connection...')
+    console.log('MQTT Broker:', MQTT_BROKER)
+    
     const client = mqtt.connect(MQTT_BROKER, {
       clientId: `web_client_${Math.random().toString(16).substr(2, 8)}`,
       clean: true,
-      connectTimeout: 4000,
-      reconnectPeriod: 1000,
+      connectTimeout: 10000,
+      reconnectPeriod: 5000,
+      protocolVersion: 4,
+      keepalive: 60
     })
 
     client.on('connect', () => {
-      console.log('MQTT Connected')
+      console.log('MQTT Connected successfully!')
       setMqttConnected(true)
     })
 
     client.on('error', (error) => {
-      console.error('MQTT Error:', error)
+      console.error('MQTT Connection Error:', error)
       setMqttConnected(false)
     })
 
@@ -45,10 +60,17 @@ function App() {
       setMqttConnected(false)
     })
 
+    client.on('offline', () => {
+      console.log('MQTT Offline')
+      setMqttConnected(false)
+    })
+
     setMqttClient(client)
 
     return () => {
-      client.end()
+      if (client) {
+        client.end()
+      }
     }
   }, [])
 
