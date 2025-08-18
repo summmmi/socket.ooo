@@ -258,11 +258,12 @@ function App() {
       ref={gradientRef}
       style={{
         background: `
-          radial-gradient(ellipse 200% 80% at ${30 + Math.sin(offset.x * 0.01) * 20}% ${40 + Math.cos(offset.y * 0.008) * 15}%, hsl(290, 87%, 47%) 0%, transparent 60%),
-          radial-gradient(ellipse 150% 120% at ${70 + Math.cos(offset.x * 0.012) * 25}% ${60 + Math.sin(offset.y * 0.015) * 20}%, hsl(167, 72%, 60%) 0%, transparent 70%),
-          radial-gradient(ellipse 180% 90% at ${50 + Math.sin(offset.x * 0.008) * 30}% ${80 + Math.cos(offset.y * 0.01) * 25}%, hsl(320, 75%, 45%) 0%, transparent 65%),
-          radial-gradient(ellipse 130% 160% at ${20 + Math.cos(offset.x * 0.015) * 20}% ${30 + Math.sin(offset.y * 0.012) * 30}%, hsl(177, 65%, 55%) 0%, transparent 75%),
-          radial-gradient(ellipse 170% 100% at ${80 + Math.sin(offset.x * 0.009) * 15}% ${20 + Math.cos(offset.y * 0.014) * 20}%, hsl(280, 80%, 50%) 0%, transparent 80%),
+          radial-gradient(ellipse ${150 + Math.sin(offset.x * 0.003) * 25}% ${80 + Math.cos(offset.y * 0.002) * 20}% at ${25 + offset.x * 0.05 + Math.sin(offset.x * 0.004 + 1.2) * 15}% ${35 + offset.y * 0.04 + Math.cos(offset.y * 0.003 + 2.1) * 18}%, hsl(290, 87%, 47%) 0%, transparent 65%),
+          radial-gradient(ellipse ${120 + Math.cos(offset.x * 0.0025) * 30}% ${160 + Math.sin(offset.y * 0.002) * 25}% at ${75 + offset.x * 0.03 + Math.cos(offset.x * 0.003 + 3.4) * 20}% ${65 + offset.y * 0.06 + Math.sin(offset.y * 0.004 + 1.8) * 22}%, hsl(167, 72%, 60%) 0%, transparent 70%),
+          radial-gradient(ellipse ${180 + Math.sin(offset.x * 0.002) * 35}% ${100 + Math.cos(offset.y * 0.003) * 28}% at ${50 + offset.x * 0.04 + Math.sin(offset.x * 0.005 + 4.7) * 25}% ${25 + offset.y * 0.05 + Math.cos(offset.y * 0.0025 + 0.9) * 30}%, hsl(320, 75%, 45%) 0%, transparent 75%),
+          radial-gradient(ellipse ${140 + Math.cos(offset.x * 0.004) * 40}% ${130 + Math.sin(offset.y * 0.0015) * 30}% at ${15 + offset.x * 0.02 + Math.cos(offset.x * 0.002 + 2.3) * 18}% ${80 + offset.y * 0.03 + Math.sin(offset.y * 0.003 + 5.2) * 15}%, hsl(177, 65%, 55%) 0%, transparent 80%),
+          radial-gradient(ellipse ${170 + Math.sin(offset.x * 0.0018) * 20}% ${110 + Math.cos(offset.y * 0.003) * 35}% at ${85 + offset.x * 0.06 + Math.sin(offset.x * 0.004 + 1.7) * 12}% ${55 + offset.y * 0.04 + Math.cos(offset.y * 0.005 + 3.8) * 20}%, hsl(280, 80%, 50%) 0%, transparent 85%),
+          radial-gradient(ellipse ${160 + Math.cos(offset.x * 0.0012) * 32}% ${90 + Math.sin(offset.y * 0.0045) * 28}% at ${45 + offset.x * 0.07 + Math.cos(offset.x * 0.006 + 6.1) * 28}% ${70 + offset.y * 0.08 + Math.sin(offset.y * 0.002 + 4.5) * 25}%, hsl(220, 70%, 55%) 0%, transparent 90%),
           linear-gradient(135deg, hsl(290, 87%, 47%) 0%, hsl(167, 72%, 60%) 100%)
         `,
         filter: 'contrast(1.1) saturate(1.2)'
