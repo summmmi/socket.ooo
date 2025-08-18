@@ -8,7 +8,9 @@
       "Bash(yarn build)",
       "Bash(rm:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(echo $VITE_SUPABASE_ANON_KEY)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "additionalDirectories": [
