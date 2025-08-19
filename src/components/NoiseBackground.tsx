@@ -120,9 +120,9 @@ const fragmentShader = `
     float noise1 = fbm(uv * scale1 + warp + uTime * 0.05, octaves, persistence);
     float noise2 = fbm(uv * scale2 + warp + uTime * 0.04, octaves, persistence);
     
-    // 훨씬 강한 색상 혼합
-    float mixStrength1 = abs(noise1);
-    float mixStrength2 = abs(noise2);
+    // 적당한 색상 혼합으로 구분 개선
+    float mixStrength1 = abs(noise1) * 0.99;
+    float mixStrength2 = abs(noise2) * 0.99;
     
     color = mix(color, uColorA, mixStrength1);
     color = mix(color, uColorB, mixStrength2);
@@ -134,7 +134,35 @@ const fragmentShader = `
 export function NoiseBackground({ color1, color2, offset }: NoiseBackgroundProps) {
   const meshRef = useRef<THREE.Mesh>(null)
   const materialRef = useRef<THREE.ShaderMaterial>(null)
-  const { viewport } = useThree()
+  const { viewport, gl, scene, camera } = useThree()
+  
+  // Set up color picker function for real-time pixel reading
+  useEffect(() => {
+    (window as any).getPixelColor = (x: number, y: number) => {
+      const canvas = gl.domElement
+      const rect = canvas.getBoundingClientRect()
+      const pixelX = Math.floor(x * canvas.width)
+      const pixelY = Math.floor((1 - y) * canvas.height)
+      
+      // Create a render target to read pixels
+      const renderTarget = new THREE.WebGLRenderTarget(canvas.width, canvas.height)
+      
+      // Render current scene to render target
+      gl.setRenderTarget(renderTarget)
+      gl.render(scene, camera)
+      
+      // Read pixel data
+      const pixelBuffer = new Uint8Array(4)
+      gl.readRenderTargetPixels(renderTarget, pixelX, pixelY, 1, 1, pixelBuffer)
+      
+      // Clean up
+      gl.setRenderTarget(null)
+      renderTarget.dispose()
+      
+      return `#${pixelBuffer[0].toString(16).padStart(2, '0')}${pixelBuffer[1].toString(16).padStart(2, '0')}${pixelBuffer[2].toString(16).padStart(2, '0')}`
+    }
+  }, [gl, scene, camera])
+
 
   // Convert HSL to RGB
   const hslToRgb = (hslString: string) => {

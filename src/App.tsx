@@ -26,6 +26,9 @@ function App() {
   const [offset, setOffset] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [lastPosition, setLastPosition] = useState({ x: 0, y: 0 })
+  const [currentTime, setCurrentTime] = useState(0)
+  const [smoothBlockColors, setSmoothBlockColors] = useState<[string, string, string]>(['#ffffff', '#ffffff', '#ffffff'])
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   // 컬러 변수
   const color1 = 'hsl(152, 42%, 79%)'
@@ -136,11 +139,46 @@ function App() {
     }
   }, [])
 
-  const getColorAtPosition = (x: number, y: number): string => {
-    // 3D 환경에서 색상 샘플링은 shader에서 계산된 값으로 근사치 사용
-    const t = Math.sin((x + offset.x * 0.001) * 3 + (y + offset.y * 0.001) * 2) * 0.5 + 0.5
+  // Update time for real-time color updates
+  useEffect(() => {
+    const animationFrame = () => {
+      setCurrentTime(Date.now() * 0.001)
+      requestAnimationFrame(animationFrame)
+    }
+    requestAnimationFrame(animationFrame)
+  }, [])
+
+  // Smooth color interpolation
+  const interpolateColor = (color1: string, color2: string, factor: number) => {
+    const rgb1 = color1.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/)
+    const rgb2 = color2.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/)
     
-    // HSL을 RGB로 변환
+    if (!rgb1 || !rgb2) return color2
+    
+    const r = Math.round(parseInt(rgb1[1]) + (parseInt(rgb2[1]) - parseInt(rgb1[1])) * factor)
+    const g = Math.round(parseInt(rgb1[2]) + (parseInt(rgb2[2]) - parseInt(rgb1[2])) * factor)
+    const b = Math.round(parseInt(rgb1[3]) + (parseInt(rgb2[3]) - parseInt(rgb1[3])) * factor)
+    
+    return `rgb(${r}, ${g}, ${b})`
+  }
+
+  const getColorAtPosition = (x: number, y: number): string => {
+    const uv = { x: x + offset.x * 0.0002, y: y + offset.y * 0.0002 }
+    
+    const scale1 = 0.8 + Math.sin(offset.x * 0.003) * 0.2
+    const scale2 = 0.8 + Math.cos(offset.y * 0.003) * 0.2
+    
+    const timeOffset1 = currentTime * 0.1
+    const timeOffset2 = currentTime * 0.08
+    
+    const noise1 = (Math.sin(uv.x * scale1 * 6 + uv.y * scale1 * 6 + timeOffset1) + 
+                   Math.sin(uv.x * scale1 * 3 + timeOffset1 * 0.7)) * 0.25 + 0.5
+    const noise2 = (Math.sin(uv.x * scale2 * 5 + uv.y * scale2 * 5 + timeOffset2) + 
+                   Math.sin(uv.y * scale2 * 4 + timeOffset2 * 0.8)) * 0.25 + 0.5
+    
+    const mixStrength1 = Math.abs(noise1) * 0.6
+    const mixStrength2 = Math.abs(noise2) * 0.6
+    
     const hslToRgb = (hslString: string) => {
       const hslMatch = hslString.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/)
       if (!hslMatch) return { r: 0, g: 0, b: 0 }
@@ -177,33 +215,59 @@ function App() {
       }
     }
     
+    const bg = { r: 179, g: 179, b: 191 }
     const rgb1 = hslToRgb(color1)
     const rgb2 = hslToRgb(color2)
     
-    const r = Math.floor(rgb1.r * (1 - t) + rgb2.r * t)
-    const g = Math.floor(rgb1.g * (1 - t) + rgb2.g * t)
-    const b = Math.floor(rgb1.b * (1 - t) + rgb2.b * t)
+    let r = bg.r
+    let g = bg.g  
+    let b = bg.b
     
-    return `rgb(${r}, ${g}, ${b})`
+    r = r * (1 - mixStrength1) + rgb1.r * mixStrength1
+    g = g * (1 - mixStrength1) + rgb1.g * mixStrength1
+    b = b * (1 - mixStrength1) + rgb1.b * mixStrength1
+    
+    r = r * (1 - mixStrength2) + rgb2.r * mixStrength2
+    g = g * (1 - mixStrength2) + rgb2.g * mixStrength2
+    b = b * (1 - mixStrength2) + rgb2.b * mixStrength2
+    
+    return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`
   }
 
-  const updateBlockColors = () => {
-    const color1 = getColorAtPosition(0.5, 0.2)
-    const color2 = getColorAtPosition(0.5, 0.5)
-    const color3 = getColorAtPosition(0.5, 0.8)
-    setBlockColors([color1, color2, color3])
-  }
-
+  // Real-time color picking from WebGL
   useEffect(() => {
-    updateBlockColors()
+    const interval = setInterval(() => {
+      const getPixelColor = (window as any).getPixelColor
+      if (!getPixelColor) return
+      
+      const newColors = [
+        getPixelColor(0.5, 0.2),
+        getPixelColor(0.5, 0.5), 
+        getPixelColor(0.5, 0.8)
+      ] as [string, string, string]
+      
+      setBlockColors(newColors)
+      setSmoothBlockColors(newColors)
+    }, 50) // Update every 50ms for real-time effect
+    
+    return () => clearInterval(interval)
   }, [offset])
+
+
 
   const handleTransmitColors = async () => {
     setIsLoading(true)
 
     try {
       if (mqttClient && mqttConnected) {
-        const rgbColors = blockColors.map(color => {
+        const rgbColors = smoothBlockColors.map(color => {
+          // Handle hex colors from pixel reading
+          if (color.startsWith('#')) {
+            const r = parseInt(color.slice(1, 3), 16)
+            const g = parseInt(color.slice(3, 5), 16)
+            const b = parseInt(color.slice(5, 7), 16)
+            return { r, g, b }
+          }
           const match = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/)
           return match ? { r: parseInt(match[1]), g: parseInt(match[2]), b: parseInt(match[3]) } : { r: 255, g: 255, b: 255 }
         })
@@ -219,7 +283,14 @@ function App() {
       }
 
       if (supabase) {
-        const rgbColors = blockColors.map(color => {
+        const rgbColors = smoothBlockColors.map(color => {
+          // Handle hex colors from pixel reading
+          if (color.startsWith('#')) {
+            const r = parseInt(color.slice(1, 3), 16)
+            const g = parseInt(color.slice(3, 5), 16)
+            const b = parseInt(color.slice(5, 7), 16)
+            return { r, g, b }
+          }
           const match = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/)
           return match ? { r: parseInt(match[1]), g: parseInt(match[2]), b: parseInt(match[3]) } : { r: 255, g: 255, b: 255 }
         })
@@ -248,11 +319,15 @@ function App() {
         className="w-full h-full" 
         camera={{ position: [0, 0, 5], fov: 75 }}
       >
-        <NoiseBackground color1={color1} color2={color2} offset={offset} />
+        <NoiseBackground 
+          color1={color1} 
+          color2={color2} 
+          offset={offset}
+        />
       </Canvas>
       
       <UIOverlay 
-        blockColors={blockColors}
+        blockColors={smoothBlockColors}
         mqttConnected={mqttConnected}
         isLoading={isLoading}
         onTransmitColors={handleTransmitColors}
