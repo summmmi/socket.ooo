@@ -1,4 +1,4 @@
-import { useRef, useMemo, useEffect, useCallback } from 'react'
+import { useRef, useMemo, useEffect } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 
@@ -134,13 +134,12 @@ const fragmentShader = `
 export function NoiseBackground({ color1, color2, offset }: NoiseBackgroundProps) {
   const meshRef = useRef<THREE.Mesh>(null)
   const materialRef = useRef<THREE.ShaderMaterial>(null)
-  const { viewport, gl, scene, camera } = useThree()
+  const { gl, scene, camera } = useThree()
   
   // Set up color picker function for real-time pixel reading
   useEffect(() => {
     (window as any).getPixelColor = (x: number, y: number) => {
       const canvas = gl.domElement
-      const rect = canvas.getBoundingClientRect()
       const pixelX = Math.floor(x * canvas.width)
       const pixelY = Math.floor((1 - y) * canvas.height)
       
