@@ -10,7 +10,11 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(echo $VITE_SUPABASE_ANON_KEY)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "WebFetch(domain:blog.maximeheckel.com)",
+      "Bash(yarn add:*)",
+      "Bash(yarn remove:*)",
+      "WebFetch(domain:codesandbox.io)"
     ],
     "deny": [],
     "additionalDirectories": [
