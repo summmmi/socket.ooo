@@ -14,7 +14,8 @@
       "WebFetch(domain:blog.maximeheckel.com)",
       "Bash(yarn add:*)",
       "Bash(yarn remove:*)",
-      "WebFetch(domain:codesandbox.io)"
+      "WebFetch(domain:codesandbox.io)",
+      "WebSearch"
     ],
     "deny": [],
     "additionalDirectories": [

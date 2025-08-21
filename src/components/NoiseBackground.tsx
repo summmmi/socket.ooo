@@ -163,44 +163,23 @@ export function NoiseBackground({ color1, color2, offset }: NoiseBackgroundProps
   }, [gl, scene, camera])
 
 
-  // Convert HSL to RGB
-  const hslToRgb = (hslString: string) => {
-    const hslMatch = hslString.match(/hsl\((\d+),\s*(\d+)%,\s*(\d+)%\)/)
-    if (!hslMatch) return [0, 0, 0]
+  // Convert RGB string to normalized RGB array
+  const parseRgbToNormalized = (rgbString: string) => {
+    const rgbMatch = rgbString.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/)
+    if (!rgbMatch) return [0, 0, 0]
 
-    const h = parseInt(hslMatch[1]) / 360
-    const s = parseInt(hslMatch[2]) / 100
-    const l = parseInt(hslMatch[3]) / 100
-
-    let r, g, b
-
-    if (s === 0) {
-      r = g = b = l
-    } else {
-      const hue2rgb = (p: number, q: number, t: number) => {
-        if (t < 0) t += 1
-        if (t > 1) t -= 1
-        if (t < 1 / 6) return p + (q - p) * 6 * t
-        if (t < 1 / 2) return q
-        if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6
-        return p
-      }
-
-      const q = l < 0.5 ? l * (1 + s) : l + s - l * s
-      const p = 2 * l - q
-      r = hue2rgb(p, q, h + 1 / 3)
-      g = hue2rgb(p, q, h)
-      b = hue2rgb(p, q, h - 1 / 3)
-    }
+    const r = parseInt(rgbMatch[1]) / 255
+    const g = parseInt(rgbMatch[2]) / 255
+    const b = parseInt(rgbMatch[3]) / 255
 
     return [r, g, b]
   }
 
   const uniforms = useMemo(
     () => ({
-      uBg: { value: [0.7, 0.7, 0.75] },
-      uColorA: { value: hslToRgb(color1) },
-      uColorB: { value: hslToRgb(color2) },
+      uBg: { value: [1.0, 1.0, 1.0] },  // 흰색 배경으로 변경
+      uColorA: { value: parseRgbToNormalized(color1) },
+      uColorB: { value: parseRgbToNormalized(color2) },
       uOffset: { value: new THREE.Vector2(offset.x, offset.y) },
       uTime: { value: 0 }
     }),
