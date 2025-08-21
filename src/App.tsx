@@ -28,8 +28,8 @@ function App() {
   const [blockColors, setBlockColors] = useState<[string, string, string]>(['#ffffff', '#ffffff', '#ffffff'])
 
   // 컬러 변수
-  const color1 = 'hsl(152, 42%, 79%)'
-  const color2 = 'hsl(227, 100%, 23%)'
+  const color1 = 'hsl(53, 100%, 50%)'
+  const color2 = 'hsl(134, 100%, 44%)'
 
   useEffect(() => {
     if (!isBrowser) return
@@ -142,16 +142,16 @@ function App() {
     const interval = setInterval(() => {
       const getPixelColor = (window as any).getPixelColor
       if (!getPixelColor) return
-      
+
       const newColors = [
         getPixelColor(0.5, 0.2),
-        getPixelColor(0.5, 0.5), 
+        getPixelColor(0.5, 0.5),
         getPixelColor(0.5, 0.8)
       ] as [string, string, string]
-      
+
       setBlockColors(newColors)
     }, 50) // Update every 50ms for real-time effect
-    
+
     return () => clearInterval(interval)
   }, [offset])
 
@@ -199,26 +199,26 @@ function App() {
   }
 
   return (
-    <div 
+    <div
       className="fixed inset-0 w-full h-full"
-      style={{ 
-        touchAction: 'none', 
-        cursor: isDragging ? 'grabbing' : 'grab', 
+      style={{
+        touchAction: 'none',
+        cursor: isDragging ? 'grabbing' : 'grab',
         zIndex: 0
       }}
     >
-      <Canvas 
-        className="w-full h-full" 
+      <Canvas
+        className="w-full h-full"
         camera={{ position: [0, 0, 5], fov: 75 }}
       >
-        <NoiseBackground 
-          color1={color1} 
-          color2={color2} 
+        <NoiseBackground
+          color1={color1}
+          color2={color2}
           offset={offset}
         />
       </Canvas>
-      
-      <UIOverlay 
+
+      <UIOverlay
         blockColors={blockColors}
         mqttConnected={mqttConnected}
         isLoading={isLoading}
