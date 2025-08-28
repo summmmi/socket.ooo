@@ -272,11 +272,21 @@ function App() {
       }
 
       if (supabase) {
-        await supabase.from('led_colors').insert([{
-          original_color: JSON.stringify(originalRgbColors),
-          corrected_color: JSON.stringify(correctedRgbColors),
-          timestamp: new Date().toISOString()
-        }])
+        try {
+          const { error } = await supabase.from('led_colors').insert([{
+            color: JSON.stringify(correctedRgbColors),  // 보정된 색상만 저장
+            timestamp: new Date().toISOString()
+          }])
+          
+          if (error) {
+            console.error('Supabase error:', JSON.stringify(error, null, 2))
+            console.error('Error details:', error.message, error.code, error.details)
+          } else {
+            console.log('Colors saved to Supabase successfully')
+          }
+        } catch (err) {
+          console.error('Supabase insert failed:', err)
+        }
       }
     } catch (error) {
       console.error('Error:', error)
