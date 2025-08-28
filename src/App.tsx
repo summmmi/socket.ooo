@@ -171,101 +171,21 @@ function App() {
     return match ? { r: parseInt(match[1]), g: parseInt(match[2]), b: parseInt(match[3]) } : { r: 255, g: 255, b: 255 }
   }
 
-  // WS2812 NeoPixel 색상 보정 함수 - 극단적 색상 분리
-  const correctColorForWS2812 = (rgb: { r: number; g: number; b: number }) => {
-    let { r, g, b } = rgb
-    
-    // 0-1 범위로 정규화
-    r = r / 255
-    g = g / 255
-    b = b / 255
-    
-    // 1. 극단적 채도 강화 - 가장 강한 색상만 남기고 나머지는 최소화
-    const maxChannel = Math.max(r, g, b)
-    const threshold = 0.3  // 임계값
-    
-    if (maxChannel > threshold) {
-      // 가장 강한 색상 채널 찾기
-      const isRed = r >= g && r >= b
-      const isGreen = g >= r && g >= b
-      const isBlue = b >= r && b >= g
-      
-      // 주색상은 강화, 나머지는 대폭 감소
-      if (isRed) {
-        r = Math.min(r * 2.5, 1)  // 빨강 대폭 강화
-        g = g * 0.1               // 초록 거의 제거
-        b = b * 0.1               // 파랑 거의 제거
-      } else if (isGreen) {
-        r = r * 0.1               // 빨강 거의 제거
-        g = Math.min(g * 2.5, 1)  // 초록 대폭 강화
-        b = b * 0.1               // 파랑 거의 제거
-      } else if (isBlue) {
-        r = r * 0.1               // 빨강 거의 제거
-        g = g * 0.1               // 초록 거의 제거
-        b = Math.min(b * 2.5, 1)  // 파랑 대폭 강화
-      }
-    }
-    
-    // 2. 색상 혼합 영역을 위한 2차 보정
-    const colorSum = r + g + b
-    if (colorSum > 0.6 && colorSum < 1.5) {
-      // 두 색상이 섞인 영역은 더 뚜렷한 중간색으로
-      if (r > 0.2 && g > 0.2 && b < 0.2) {
-        // 빨강+초록 = 노랑
-        r = Math.min(r * 1.8, 1)
-        g = Math.min(g * 1.8, 1)
-        b = b * 0.05
-      } else if (r > 0.2 && b > 0.2 && g < 0.2) {
-        // 빨강+파랑 = 마젠타
-        r = Math.min(r * 1.8, 1)
-        g = g * 0.05
-        b = Math.min(b * 1.8, 1)
-      } else if (g > 0.2 && b > 0.2 && r < 0.2) {
-        // 초록+파랑 = 시안
-        r = r * 0.05
-        g = Math.min(g * 1.8, 1)
-        b = Math.min(b * 1.8, 1)
-      }
-    }
-    
-    // 3. 감마 보정
-    const gamma = 1.8  // 더 강한 대비
-    r = Math.pow(r, 1 / gamma)
-    g = Math.pow(g, 1 / gamma)
-    b = Math.pow(b, 1 / gamma)
-    
-    // 4. 최종 밝기 조정
-    const maxBrightness = 0.9
-    r = Math.min(r * maxBrightness, 1)
-    g = Math.min(g * maxBrightness, 1)
-    b = Math.min(b * maxBrightness, 1)
-    
-    // 255 범위로 복원
-    return {
-      r: Math.round(r * 255),
-      g: Math.round(g * 255),
-      b: Math.round(b * 255)
-    }
-  }
 
   const handleTransmitColors = async () => {
     setIsLoading(true)
 
     try {
-      // 원본 RGB 색상 추출
-      const originalRgbColors = blockColors.map(convertColorToRgb)
-      
-      // WS2812에 최적화된 색상으로 보정
-      const correctedRgbColors = originalRgbColors.map(correctColorForWS2812)
+      // RGB 색상 추출 (보정 없이 원본 그대로)
+      const rgbColors = blockColors.map(convertColorToRgb)
 
-      console.log('Original colors:', originalRgbColors)
-      console.log('Corrected colors for WS2812:', correctedRgbColors)
+      console.log('Sending RGB colors:', rgbColors)
 
       if (mqttClient && mqttConnected) {
         const colorData = {
-          block1: correctedRgbColors[0],
-          block2: correctedRgbColors[1],
-          block3: correctedRgbColors[2],
+          block1: rgbColors[0],
+          block2: rgbColors[1],
+          block3: rgbColors[2],
           timestamp: new Date().toISOString()
         }
         mqttClient.publish(MQTT_TOPIC, JSON.stringify(colorData), { qos: 0 })
@@ -274,7 +194,7 @@ function App() {
       if (supabase) {
         try {
           const { error } = await supabase.from('led_colors').insert([{
-            color: JSON.stringify(correctedRgbColors),  // 보정된 색상만 저장
+            color: JSON.stringify(rgbColors),
             timestamp: new Date().toISOString()
           }])
           
