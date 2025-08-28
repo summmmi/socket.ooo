@@ -94,6 +94,34 @@ const fragmentShader = `
     return value;
   }
 
+  // Arduino gamma8 테이블을 정확히 재현하는 함수
+  float arduinoGamma8(float value) {
+    // Arduino gamma8는 실제로 gamma 2.6에 가까운 곡선
+    float normalized = clamp(value, 0.0, 1.0);
+    
+    // Arduino gamma8 테이블의 특성을 수학적으로 근사
+    // pow(x, 1.0/2.6) * scaling factor
+    return pow(normalized, 0.385) * 1.008; // 1/2.6 ≈ 0.385
+  }
+
+  // WS2812B LED 색상 보정 함수 (올바른 처리 순서)
+  vec3 correctForLED(vec3 linearColor) {
+    // 1단계: 밝기 제한 (Arduino의 MAX_BRIGHTNESS)
+    vec3 color = linearColor * 0.5; // MAX_BRIGHTNESS
+    
+    // 2단계: LED 색온도 보정 (중요: 감마 보정 전에 적용)
+    color.r *= 1.0;   // 빨강 그대로
+    color.g *= 0.85;  // 초록 줄임 (LED가 초록이 강함)  
+    color.b *= 0.7;   // 파랑 줄임 (LED가 파랑이 약함)
+    
+    // 3단계: Arduino 스타일 감마 보정 적용
+    color.r = arduinoGamma8(color.r);
+    color.g = arduinoGamma8(color.g);
+    color.b = arduinoGamma8(color.b);
+    
+    return color;
+  }
+
   void main() {
     vec3 color = uBg;
     
@@ -126,6 +154,9 @@ const fragmentShader = `
     
     color = mix(color, uColorA, mixStrength1);
     color = mix(color, uColorB, mixStrength2);
+    
+    // LED 색상 보정 비활성화 (원본 색상 사용)
+    // color = correctForLED(color);
     
     gl_FragColor = vec4(color, 1.0);
   }
