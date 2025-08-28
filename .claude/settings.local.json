@@ -15,7 +15,8 @@
       "Bash(yarn add:*)",
       "Bash(yarn remove:*)",
       "WebFetch(domain:codesandbox.io)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "additionalDirectories": [

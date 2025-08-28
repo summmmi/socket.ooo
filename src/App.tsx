@@ -180,6 +180,14 @@ function App() {
       const rgbColors = blockColors.map(convertColorToRgb)
 
       console.log('Sending RGB colors:', rgbColors)
+      
+      // 먼저 현재 총 개수 확인
+      if (supabase) {
+        const { count: beforeCount } = await supabase
+          .from('led_colors')
+          .select('*', { count: 'exact', head: true })
+        console.log('🔢 Row count before insert:', beforeCount)
+      }
 
       if (mqttClient && mqttConnected) {
         const colorData = {
@@ -198,20 +206,66 @@ function App() {
 
       if (supabase) {
         try {
-          const { error } = await supabase.from('led_colors').insert([{
+          console.log('🔍 Attempting Supabase insertion...')
+          console.log('📊 Data to insert:', {
             color: JSON.stringify(rgbColors),
             timestamp: new Date().toISOString()
-          }])
+          })
+          
+          const { data, error, status, statusText } = await supabase.from('led_colors').insert([{
+            color: JSON.stringify(rgbColors),
+            timestamp: new Date().toISOString()
+          }]).select()
+          
+          console.log('🔍 Full Supabase response:', { data, error, status, statusText })
           
           if (error) {
-            console.error('Supabase error:', JSON.stringify(error, null, 2))
-            console.error('Error details:', error.message, error.code, error.details)
-          } else {
-            console.log('Colors saved to Supabase successfully')
+            console.error('❌ Supabase error:', JSON.stringify(error, null, 2))
+            console.error('❌ Error details:', {
+              message: error.message,
+              code: error.code,
+              details: error.details,
+              hint: error.hint
+            })
+          }
+          
+          if (data && data.length > 0) {
+            console.log('✅ Colors saved to Supabase successfully')
+            console.log('📋 Inserted data:', data)
+            
+            // 삽입 후 총 개수 다시 확인
+            const { count: afterCount } = await supabase
+              .from('led_colors')
+              .select('*', { count: 'exact', head: true })
+            console.log('🔢 Row count after insert:', afterCount)
+            
+            // 최신 5개 행 확인 (컬럼명 수정)
+            const { data: latestRows, error: latestError } = await supabase
+              .from('led_colors')
+              .select('id, timestamp, color')
+              .order('timestamp', { ascending: false })
+              .limit(5)
+            console.log('📋 Latest 5 rows:', latestRows)
+            if (latestError) console.log('📋 Latest rows error:', latestError)
+            
+          } else if (!error) {
+            console.log('⚠️ No error but no data returned - possible RLS issue')
+            
+            // RLS 정책 확인을 위한 테스트
+            const { data: testSelect, error: selectError } = await supabase
+              .from('led_colors')
+              .select('*')
+              .order('id', { ascending: false })
+              .limit(5)
+            
+            console.log('🔍 Recent rows check:', { testSelect, selectError })
           }
         } catch (err) {
-          console.error('Supabase insert failed:', err)
+          console.error('💥 Supabase insert failed with exception:', err)
+          console.error('💥 Error stack:', (err as Error).stack)
         }
+      } else {
+        console.log('⚠️ Supabase client is null - not configured properly')
       }
     } catch (error) {
       console.error('Error:', error)
