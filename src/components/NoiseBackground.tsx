@@ -138,15 +138,15 @@ const fragmentShader = `
     // 동일한 persistence로 균형
     float persistence = 0.5;
     
-    // 통일된 domain warping
+    // 통일된 domain warping (속도 느리게)
     vec2 warp = vec2(
-      fbm(uv + uTime * 0.1, 3, 0.5),
-      fbm(uv + vec2(5.2, 1.3) + uTime * 0.1, 3, 0.5)
+      fbm(uv + uTime * 0.02, 3, 0.5),
+      fbm(uv + vec2(5.2, 1.3) + uTime * 0.02, 3, 0.5)
     ) * 0.08;
     
-    // 균형잡힌 노이즈 패턴
-    float noise1 = fbm(uv * scale1 + warp + uTime * 0.05, octaves, persistence);
-    float noise2 = fbm(uv * scale2 + warp + uTime * 0.04, octaves, persistence);
+    // 균형잡힌 노이즈 패턴 (속도 느리게)
+    float noise1 = fbm(uv * scale1 + warp + uTime * 0.03, octaves, persistence);
+    float noise2 = fbm(uv * scale2 + warp + uTime * 0.02, octaves, persistence);
     
     // 적당한 색상 혼합으로 구분 개선
     float mixStrength1 = abs(noise1) * 0.99;
@@ -166,29 +166,29 @@ export function NoiseBackground({ color1, color2, offset }: NoiseBackgroundProps
   const meshRef = useRef<THREE.Mesh>(null)
   const materialRef = useRef<THREE.ShaderMaterial>(null)
   const { gl, scene, camera } = useThree()
-  
+
   // Set up color picker function for real-time pixel reading
   useEffect(() => {
     (window as any).getPixelColor = (x: number, y: number) => {
       const canvas = gl.domElement
       const pixelX = Math.floor(x * canvas.width)
       const pixelY = Math.floor((1 - y) * canvas.height)
-      
+
       // Create a render target to read pixels
       const renderTarget = new THREE.WebGLRenderTarget(canvas.width, canvas.height)
-      
+
       // Render current scene to render target
       gl.setRenderTarget(renderTarget)
       gl.render(scene, camera)
-      
+
       // Read pixel data
       const pixelBuffer = new Uint8Array(4)
       gl.readRenderTargetPixels(renderTarget, pixelX, pixelY, 1, 1, pixelBuffer)
-      
+
       // Clean up
       gl.setRenderTarget(null)
       renderTarget.dispose()
-      
+
       return `#${pixelBuffer[0].toString(16).padStart(2, '0')}${pixelBuffer[1].toString(16).padStart(2, '0')}${pixelBuffer[2].toString(16).padStart(2, '0')}`
     }
   }, [gl, scene, camera])
