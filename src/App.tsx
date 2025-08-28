@@ -188,7 +188,12 @@ function App() {
           block3: rgbColors[2],
           timestamp: new Date().toISOString()
         }
+        console.log('MQTT connected:', mqttConnected)
+        console.log('Sending to Arduino:', JSON.stringify(colorData))
         mqttClient.publish(MQTT_TOPIC, JSON.stringify(colorData), { qos: 0 })
+        console.log('MQTT message sent successfully')
+      } else {
+        console.log('MQTT not connected! Client:', !!mqttClient, 'Connected:', mqttConnected)
       }
 
       if (supabase) {
