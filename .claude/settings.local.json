@@ -16,7 +16,11 @@
       "Bash(yarn remove:*)",
       "WebFetch(domain:codesandbox.io)",
       "WebSearch",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Read(/Users/macmini/Desktop/**)",
+      "Read(/var/folders/t_/3rts0xtd72qbldwxr396gs880000gn/T/TemporaryItems/NSIRD_screencaptureui_p9D3nI/**)",
+      "Read(/Users/macmini/Desktop/**)",
+      "Read(/Users/macmini/Desktop/**)"
     ],
     "deny": [],
     "additionalDirectories": [

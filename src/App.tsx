@@ -175,6 +175,9 @@ function App() {
   const handleTransmitColors = async () => {
     setIsLoading(true)
 
+    // 1초 딜레이 추가
+    await new Promise(resolve => setTimeout(resolve, 1000))
+
     try {
       // RGB 색상 추출 (보정 없이 원본 그대로)
       const rgbColors = blockColors.map(convertColorToRgb)

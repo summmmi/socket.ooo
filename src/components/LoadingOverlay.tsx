@@ -10,20 +10,13 @@ export function LoadingOverlay({ isConnected, onComplete }: LoadingOverlayProps)
   const [dots, setDots] = useState('')
   const [isVisible, setIsVisible] = useState(true)
   const [hasLoaded, setHasLoaded] = useState(false)
-  
+
   // 검색 중 랜덤 문구들
   const searchingPhrases = [
-    'Ensorcelling',
-    'Weaving light threads',
-    'Awakening colors',
-    'Painting darkness',
-    'Summoning hues',
-    'Brewing luminance',
-    'Channeling spectrum',
-    'Conjuring brilliance'
+    'searching for nearby Pockets',
   ]
-  
-  const [currentPhrase] = useState(() => 
+
+  const [currentPhrase] = useState(() =>
     searchingPhrases[Math.floor(Math.random() * searchingPhrases.length)]
   )
 
@@ -49,7 +42,7 @@ export function LoadingOverlay({ isConnected, onComplete }: LoadingOverlayProps)
   useEffect(() => {
     if (isConnected && stage === 'searching') {
       setStage('found')
-      
+
       // "Found!" 메시지 1초 표시 후 페이드아웃 시작
       setTimeout(() => {
         setIsVisible(false)
@@ -69,28 +62,24 @@ export function LoadingOverlay({ isConnected, onComplete }: LoadingOverlayProps)
   if (stage === 'complete') return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-8">
       {/* 블러 배경 */}
-      <div className={`absolute inset-0 bg-black/20 backdrop-blur-md transition-all duration-500 ease-in-out ${
-        isVisible && hasLoaded ? 'opacity-100' : 'opacity-0'
-      }`} />
-      
+      <div className={`absolute inset-0 bg-black/20 backdrop-blur-md transition-all duration-500 ease-in-out ${isVisible && hasLoaded ? 'opacity-100' : 'opacity-0'
+        }`} />
+
       {/* 로딩 콘텐츠 */}
-      <div className={`relative bg-white/10 backdrop-blur-lg rounded-2xl px-8 py-6 border border-white/20 shadow-2xl transition-all duration-500 ease-in-out ${
-        isVisible && hasLoaded ? 'opacity-100' : 'opacity-0'
-      }`}>
+      <div className={`relative bg-white/10 backdrop-blur-lg rounded-2xl px-8 py-6 border border-white/20 shadow-2xl transition-all duration-500 ease-in-out ${isVisible && hasLoaded ? 'opacity-100' : 'opacity-0'
+        }`}>
         <div className="text-center">
-          <div className={`transition-opacity duration-500 ease-in-out ${
-            stage === 'searching' ? 'opacity-100' : 'opacity-0'
-          }`} style={{ display: stage === 'searching' ? 'block' : 'none' }}>
+          <div className={`transition-opacity duration-500 ease-in-out ${stage === 'searching' ? 'opacity-100' : 'opacity-0'
+            }`} style={{ display: stage === 'searching' ? 'block' : 'none' }}>
             <h2 className="text-2xl font-bold text-white mb-2">
               {currentPhrase}{dots}
             </h2>
           </div>
-          
-          <div className={`transition-opacity duration-500 ease-in-out ${
-            stage === 'found' ? 'opacity-100' : 'opacity-0'
-          }`} style={{ display: stage === 'found' ? 'block' : 'none' }}>
+
+          <div className={`transition-opacity duration-500 ease-in-out ${stage === 'found' ? 'opacity-100' : 'opacity-0'
+            }`} style={{ display: stage === 'found' ? 'block' : 'none' }}>
             <h2 className="text-2xl font-bold text-white mb-2">
               colors are ready to flow
             </h2>
