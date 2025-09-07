@@ -13,7 +13,7 @@ export function LoadingOverlay({ isConnected, onComplete }: LoadingOverlayProps)
 
   // 검색 중 랜덤 문구들
   const searchingPhrases = [
-    'searching for nearby Pockets',
+    'searching for nearby pockets',
   ]
 
   const [currentPhrase] = useState(() =>
