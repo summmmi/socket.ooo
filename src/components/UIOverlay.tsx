@@ -8,8 +8,8 @@ interface UIOverlayProps {
 
 export function UIOverlay({ blockColors, mqttConnected, isLoading, onTransmitColors }: UIOverlayProps) {
   return (
-    <div className="absolute inset-0" style={{ zIndex: 10, pointerEvents: 'none' }}>
-      <div className="absolute top-6 left-1/2 transform -translate-x-1/2" style={{ isolation: 'isolate' }}>
+    <div className="absolute inset-0 w-full" style={{ zIndex: 10, pointerEvents: 'none' }}>
+      <div className="absolute top-6 left-1/2 transform w-full -translate-x-1/2" style={{ isolation: 'isolate' }}>
         <h1 className="text-white leading-loose text-2xl font-light mb-2 flex items-center justify-center gap-3" style={{ mixBlendMode: 'difference' }}>
           socket {"{"}
           {mqttConnected ? (
