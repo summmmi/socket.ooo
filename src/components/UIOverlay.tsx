@@ -1,4 +1,3 @@
-import { ColorBlock } from './ColorBlock'
 
 interface UIOverlayProps {
   blockColors: [string, string, string]
