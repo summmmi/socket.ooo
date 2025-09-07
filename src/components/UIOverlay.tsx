@@ -47,10 +47,6 @@ export function UIOverlay({ blockColors, mqttConnected, isLoading, onTransmitCol
         </button>
       </div>
 
-      <div className="absolute bottom-6 left-6 text-white/60 text-sm">
-        <p>Drag to explore endless patterns</p>
-        <p className="text-xs mt-1">Colors update in real-time</p>
-      </div>
     </div>
   )
 }
