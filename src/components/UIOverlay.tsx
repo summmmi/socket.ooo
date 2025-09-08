@@ -62,12 +62,19 @@ export function UIOverlay({ blockColors, mqttConnected, isLoading, onTransmitCol
         </div>
       </div>
 
-      <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2">
+      <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2" style={{ pointerEvents: 'auto' }}>
         <button
           onClick={onTransmitColors}
+          onTouchStart={(e) => {
+            e.stopPropagation()
+          }}
           disabled={isLoading || !mqttConnected}
-          className="bg-white/20 backdrop-blur-sm border border-white/80 text-white px-8 py-4 rounded-full hover:bg-white/50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto"
-          style={{ mixBlendMode: 'difference' }}
+          className="bg-white/20 backdrop-blur-sm border border-white/80 text-white px-8 py-4 rounded-full hover:bg-white/50 active:bg-white/60 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{ 
+            mixBlendMode: 'difference',
+            WebkitTapHighlightColor: 'transparent',
+            touchAction: 'manipulation'
+          }}
         >
           {isLoading ? 'sending...' : 'send to pocket'}
         </button>

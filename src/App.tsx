@@ -194,9 +194,9 @@ function App() {
 
       if (mqttClient && mqttConnected) {
         const colorData = {
-          block1: rgbColors[0],
-          block2: rgbColors[1],
-          block3: rgbColors[2],
+          block1: rgbColors[2],  // 맨 아래 색상을 block1로
+          block2: rgbColors[1],  // 중간 색상을 block2로
+          block3: rgbColors[0],  // 맨 위 색상을 block3로
           timestamp: new Date().toISOString()
         }
         console.log('MQTT connected:', mqttConnected)
