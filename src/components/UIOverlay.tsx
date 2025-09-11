@@ -10,10 +10,10 @@ export function UIOverlay({ blockColors, mqttConnected, isLoading, onTransmitCol
   return (
     <div className="absolute inset-0 w-full" style={{ zIndex: 10, pointerEvents: 'none' }}>
       <div className="absolute top-6 left-1/2 transform w-full -translate-x-1/2" style={{ isolation: 'isolate' }}>
-        <h1 className="text-white leading-loose text-2xl font-light mb-2 flex items-center justify-center gap-3" style={{ mixBlendMode: 'difference' }}>
+        <h1 className="text-white leading-loose text-2xl font-medium mb-2 flex items-center justify-center gap-3" style={{ mixBlendMode: 'difference' }}>
           socket {"{"}
           {mqttConnected ? (
-            <div className="w-2 h-2 bg-white rounded-full animate-pulse" style={{ marginTop: '2px' }}></div>
+            <div className="w-2.5 h-2.5 bg-white rounded-full animate-pulse" style={{ marginTop: '2px' }}></div>
           ) : (
             <span>-</span>
           )}
@@ -23,7 +23,7 @@ export function UIOverlay({ blockColors, mqttConnected, isLoading, onTransmitCol
 
       </div>
 
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div className="absolute inset-0 flex items-center justify-center pb-8">
         <div className="relative">
           <svg width="240" height="230" viewBox="0 0 260 252"
             className={`drop-shadow-lg ${isLoading ? 'animate-pulse' : ''
@@ -62,15 +62,15 @@ export function UIOverlay({ blockColors, mqttConnected, isLoading, onTransmitCol
         </div>
       </div>
 
-      <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2" style={{ pointerEvents: 'auto' }}>
+      <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 justify-center items-center" style={{ pointerEvents: 'auto' }}>
         <button
           onClick={onTransmitColors}
           onTouchStart={(e) => {
             e.stopPropagation()
           }}
           disabled={isLoading || !mqttConnected}
-          className="bg-white/20 backdrop-blur-sm border border-white/80 text-white px-8 py-4 rounded-full hover:bg-white/50 active:bg-white/60 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          style={{ 
+          className="bg-white/40 backdrop-blur-2xl border-2 border-white/80  text-white px-8 py-4 rounded-full hover:bg-white/50 active:bg-white/60 font-normal transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+          style={{
             mixBlendMode: 'difference',
             WebkitTapHighlightColor: 'transparent',
             touchAction: 'manipulation'
