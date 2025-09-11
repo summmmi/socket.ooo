@@ -171,6 +171,35 @@ function App() {
     return match ? { r: parseInt(match[1]), g: parseInt(match[2]), b: parseInt(match[3]) } : { r: 255, g: 255, b: 255 }
   }
 
+  // RGB to HSV 변환 함수
+  const rgbToHsv = (r: number, g: number, b: number) => {
+    r /= 255
+    g /= 255
+    b /= 255
+
+    const max = Math.max(r, g, b)
+    const min = Math.min(r, g, b)
+    let h = 0, s = 0, v = max
+
+    const d = max - min
+    s = max === 0 ? 0 : d / max
+
+    if (max !== min) {
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break
+        case g: h = (b - r) / d + 2; break
+        case b: h = (r - g) / d + 4; break
+      }
+      h /= 6
+    }
+
+    return {
+      h: Math.round(h * 360), // 0-360
+      s: Math.round(s * 255), // 0-255
+      v: Math.round(v * 255)  // 0-255
+    }
+  }
+
 
   const handleTransmitColors = async () => {
     setIsLoading(true)
@@ -179,10 +208,11 @@ function App() {
     await new Promise(resolve => setTimeout(resolve, 1000))
 
     try {
-      // RGB 색상 추출 (보정 없이 원본 그대로)
+      // RGB 색상 추출 후 HSV로 변환
       const rgbColors = blockColors.map(convertColorToRgb)
+      const hsvColors = rgbColors.map(rgb => rgbToHsv(rgb.r, rgb.g, rgb.b))
 
-      console.log('Sending RGB colors:', rgbColors)
+      console.log('Sending HSV colors:', hsvColors)
 
       // 먼저 현재 총 개수 확인
       if (supabase) {
@@ -194,9 +224,10 @@ function App() {
 
       if (mqttClient && mqttConnected) {
         const colorData = {
-          block1: rgbColors[2],  // 맨 아래 색상을 block1로
-          block2: rgbColors[1],  // 중간 색상을 block2로
-          block3: rgbColors[0],  // 맨 위 색상을 block3로
+          mode: "hsv",
+          block1: { h: hsvColors[2].h, s: hsvColors[2].s, v: hsvColors[2].v },  // 맨 아래
+          block2: { h: hsvColors[1].h, s: hsvColors[1].s, v: hsvColors[1].v },  // 중간
+          block3: { h: hsvColors[0].h, s: hsvColors[0].s, v: hsvColors[0].v },  // 맨 위
           timestamp: new Date().toISOString()
         }
         console.log('MQTT connected:', mqttConnected)
@@ -211,12 +242,12 @@ function App() {
         try {
           console.log('🔍 Attempting Supabase insertion...')
           console.log('📊 Data to insert:', {
-            color: JSON.stringify(rgbColors),
+            color: JSON.stringify(hsvColors),
             timestamp: new Date().toISOString()
           })
 
           const { data, error, status, statusText } = await supabase.from('led_colors').insert([{
-            color: JSON.stringify(rgbColors),
+            color: JSON.stringify(hsvColors),
             timestamp: new Date().toISOString()
           }]).select()
 
