@@ -29,9 +29,19 @@ function App() {
   const [lastPosition, setLastPosition] = useState({ x: 0, y: 0 })
   const [blockColors, setBlockColors] = useState<[string, string, string]>(['#ffffff', '#ffffff', '#ffffff'])
 
-  // 컬러 변수 - RGB 색상으로 변경
-  const color1 = 'rgb(255, 0, 0)'    // 빨간색
-  const color2 = 'rgb(0, 0, 255)'    // 파란색
+  // WS2812B에서 잘 표현되는 색상들
+  const LED_COLORS = {
+    magenta: 'rgb(255, 0, 255)',
+    hotPink: 'rgb(255, 0, 128)', 
+    purple: 'rgb(128, 0, 255)',
+    blue: 'rgb(0, 0, 255)',
+    cyan: 'rgb(0, 255, 255)',
+    white: 'rgb(255, 255, 255)'
+  }
+
+  // 컬러 변수 - WS2812B 친화적 색상으로 변경
+  const color1 = LED_COLORS.magenta
+  const color2 = LED_COLORS.cyan
 
   useEffect(() => {
     if (!isBrowser) return
