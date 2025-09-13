@@ -5,5 +5,7 @@
 @layer base {
   body {
     font-family: 'Roboto Mono', monospace;
+    touch-action: pan-x pan-y;
+    overscroll-behavior: none;
   }
 }
