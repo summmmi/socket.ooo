@@ -23,9 +23,9 @@ export function UIOverlay({ blockColors, mqttConnected, isLoading, onTransmitCol
 
       </div>
 
-      <div className="absolute inset-0 flex items-center justify-center pb-8">
+      <div className="absolute inset-0 flex items-center justify-center pb-10">
         <div className="relative">
-          <svg width="240" height="230" viewBox="0 0 260 252"
+          <svg width="220" height="210" viewBox="0 0 260 252"
             className={`drop-shadow-lg ${isLoading ? 'animate-pulse' : ''
               }`}
             style={{
